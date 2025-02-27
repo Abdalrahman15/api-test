@@ -1,22 +1,22 @@
-const express = require('express');
+const express = require("express");
 const mongoose = require("mongoose");
 const Car = require("./models/user.js");
 
 const app = express();
 app.use(express.json());
 
+const PORT = process.env.PORT || 3000; // استخدام المنفذ من Koyeb
+const MONGO_URI = process.env.MONGO_URI; // استخدام متغير البيئة لمزيد من الأمان
+
 // ✅ دالة الاتصال بقاعدة البيانات
 async function connectDB() {
     try {
-        await mongoose.connect("mongodb+srv://soulBurner:Heatsoul.5@soulburner.vrm4f.mongodb.net/?retryWrites=true&w=majority&appName=soulBurner", {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
+        await mongoose.connect(MONGO_URI);
         console.log("✅ تم الاتصال بقاعدة البيانات بنجاح");
 
-        // تشغيل السيرفر بعد نجاح الاتصال
-        app.listen(3000, () => {
-            console.log('🚀 السيرفر شغال على http://localhost:3000');
+        // ✅ تشغيل السيرفر بعد نجاح الاتصال فقط
+        app.listen(PORT, () => {
+            console.log(`🚀 السيرفر شغال على http://localhost:${PORT}`);
         });
 
     } catch (err) {
@@ -35,7 +35,7 @@ app.post("/user", async (req, res) => {
         await car.save();
         res.json({ message: "✅ تم التسجيل بنجاح", user: car });
     } catch (err) {
-        res.status(500).json({ error: "❌ حدث خطأ أثناء التسجيل" });
+        res.status(500).json({ error: "❌ حدث خطأ أثناء التسجيل", details: err.message });
     }
 });
 
@@ -45,6 +45,6 @@ app.get("/user", async (req, res) => {
         const users = await Car.find();
         res.json(users);
     } catch (err) {
-        res.status(500).json({ error: "❌ حدث خطأ أثناء جلب المستخدمين" });
+        res.status(500).json({ error: "❌ حدث خطأ أثناء جلب المستخدمين", details: err.message });
     }
 });
